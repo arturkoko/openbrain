@@ -1,0 +1,75 @@
+name: openbrain
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: openbrain-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  radicale:
+    image: tomsquest/docker-radicale:latest
+    container_name: openbrain-cal
+    restart: unless-stopped
+    volumes:
+      - ./radicale/data:/data
+      - ./radicale/config/config:/config/config:ro
+    ports:
+      - "127.0.0.1:5232:5232"
+
+  webapp:
+    build: ./webapp
+    container_name: openbrain-web
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SESSION_SECRET: ${SESSION_SECRET}
+      VAULT_PATH: /vault
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      AI_MODEL: ${AI_MODEL}
+      RADICALE_URL: http://radicale:5232
+      RADICALE_USER: ${RADICALE_USER}
+      RADICALE_PASSWORD: ${RADICALE_PASSWORD}
+      PORT: "3000"
+      TZ: Europe/Berlin
+      BODY_SIZE_LIMIT: "10485760"
+      HOST: "0.0.0.0"
+    volumes:
+      - ./vault:/vault
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: openbrain-proxy
+    restart: unless-stopped
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/data:/data
+      - ./caddy/config:/config
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - webapp
+      - radicale

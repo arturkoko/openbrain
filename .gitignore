@@ -1,0 +1,28 @@
+node_modules/
+dist/
+build/
+.svelte-kit/
+.env
+*.log
+
+# Data directories (contain personal/sensitive data)
+postgres/data/
+radicale/data/
+vault/
+caddy/data/
+caddy/config/
+
+# Personal data
+*.vcf
+*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+
+# IDE
+.vscode/
+.idea/
