@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
 
 @theme {
+	--font-sans: 'DM Sans', system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', monospace;
 	--color-brain-50: #f0f4ff;
 	--color-brain-100: #dbe4ff;
 	--color-brain-200: #bac8ff;
@@ -17,8 +20,43 @@
 	--color-text-primary: #e4e5e7;
 	--color-text-secondary: #9ca3af;
 	--color-text-muted: #6b7280;
-	--color-border: #2d3148;
+	--color-border: #1e2235;
 	--color-success: #51cf66;
 	--color-warning: #fcc419;
 	--color-danger: #ff6b6b;
 }
+
+html {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	font-family: var(--font-sans);
+	background: var(--color-surface);
+	color: var(--color-text-primary);
+}
+
+.safe-bottom {
+	padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+.safe-top {
+	padding-top: max(0rem, env(safe-area-inset-top));
+}
+
+/* Scrollbar hide utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Prose overrides for chat markdown */
+.prose-chat h1, .prose-chat h2, .prose-chat h3 { color: var(--color-text-primary); margin-top: 0.75em; margin-bottom: 0.25em; }
+.prose-chat p { margin-top: 0.25em; margin-bottom: 0.5em; }
+.prose-chat code { font-family: var(--font-mono); font-size: 0.85em; background: var(--color-surface-overlay); padding: 0.15em 0.35em; border-radius: 4px; }
+.prose-chat pre { background: var(--color-surface-overlay); border-radius: 8px; padding: 0.75rem; overflow-x: auto; margin: 0.5em 0; }
+.prose-chat pre code { background: none; padding: 0; }
+.prose-chat ul, .prose-chat ol { padding-left: 1.25em; margin: 0.25em 0; }
+.prose-chat a { color: var(--color-brain-400); text-decoration: underline; }
+.prose-chat table { width: 100%; border-collapse: collapse; margin: 0.5em 0; font-size: 0.85em; }
+.prose-chat th, .prose-chat td { padding: 0.35em 0.5em; border-bottom: 1px solid var(--color-border); text-align: left; }
+.prose-chat blockquote { border-left: 3px solid var(--color-brain-600); padding-left: 0.75em; color: var(--color-text-secondary); margin: 0.5em 0; }

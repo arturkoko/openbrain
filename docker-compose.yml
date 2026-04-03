@@ -49,12 +49,17 @@ services:
       RADICALE_PASSWORD: ${RADICALE_PASSWORD}
       PORT: "3000"
       TZ: Europe/Berlin
+      DEFAULT_ADMIN_USER: ${DEFAULT_ADMIN_USER:-admin}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-change-me}
       BODY_SIZE_LIMIT: "10485760"
+      CLAUDE_RELAY_URL: "http://host.docker.internal:9099"
       HOST: "0.0.0.0"
     volumes:
       - ./vault:/vault
     ports:
       - "127.0.0.1:3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,6 +75,23 @@ services:
     ports:
       - "8080:8080"
       - "8081:8081"
+      - "8082:8082"
     depends_on:
       - webapp
       - radicale
+
+  listmonk:
+    image: listmonk/listmonk:latest
+    container_name: openbrain-listmonk
+    restart: unless-stopped
+    command: ["./listmonk", "--config", "/listmonk/config.toml"]
+    environment:
+      TZ: Europe/Berlin
+    volumes:
+      - ./listmonk/config.toml:/listmonk/config.toml:ro
+      - ./listmonk/uploads:/listmonk/uploads
+    ports:
+      - "127.0.0.1:9000:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy

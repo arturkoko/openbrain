@@ -1,0 +1,29 @@
+:8080 {
+    # CalDAV well-known redirect
+    redir /.well-known/caldav /dav/ 301
+
+    # CalDAV proxy
+    handle_path /dav/* {
+        reverse_proxy radicale:5232
+    }
+
+    # Health check
+    handle /health {
+        respond "OK" 200
+    }
+
+    # Everything else goes to the webapp
+    handle {
+        reverse_proxy webapp:3000
+    }
+}
+
+# Dedicated CalDAV port for direct Radicale access (no path prefix)
+:8081 {
+    reverse_proxy radicale:5232
+}
+
+# Listmonk Newsletter
+:8082 {
+    reverse_proxy listmonk:9000
+}

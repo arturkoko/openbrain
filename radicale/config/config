@@ -6,8 +6,12 @@ type = htpasswd
 htpasswd_filename = /data/users
 htpasswd_encryption = bcrypt
 
+[rights]
+type = authenticated
+
 [storage]
 filesystem_folder = /data/collections
 
-[rights]
-type = owner_only
+[logging]
+level = debug
+request_header_on_debug = true
