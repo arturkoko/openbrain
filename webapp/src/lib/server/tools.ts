@@ -16,7 +16,7 @@ export const toolDefinitions: ToolDef[] = [
     type: "function",
     function: {
       name: "db_query",
-      description: "Run a read-only SQL SELECT query against the OpenBrain PostgreSQL database. Tables: contacts, interactions, household_items, maintenance_logs, reminders, memories, contact_relations, chat_messages. IMPORTANT column names for contacts: first_name, last_name, company, role, warmth (0-100), last_contact DATE, email_private, email_business (NOT 'email'!), phone_private, phone_business (NOT 'phone'!), linkedin, address (NOT 'city'/'country'!), birthday DATE, industry, is_vip BOOLEAN, preferred_platform, relationship_type, how_met, projects TEXT[]. interactions: contact_id UUID, date DATE, summary TEXT, notes TEXT. household_items: category, name, value, location, brand, warranty_until. reminders: title, due_date, status (pending/snoozed/completed/cancelled), priority (low/normal/high/urgent), recurring. memories: category, key, value, confidence, source.",
+      description: "Run a read-only SQL SELECT query against the OpenBrain PostgreSQL database. Tables: contacts, interactions, household_items, maintenance_logs, reminders, memories, contact_relations, chat_messages, recipes. IMPORTANT column names for contacts: first_name, last_name, company, role, warmth (0-100), last_contact DATE, email_private, email_business (NOT 'email'!), phone_private, phone_business (NOT 'phone'!), linkedin, address (NOT 'city'/'country'!), birthday DATE, industry, is_vip BOOLEAN, preferred_platform, relationship_type, how_met, projects TEXT[]. interactions: contact_id UUID, date DATE, summary TEXT, notes TEXT. household_items: category, name, value, location, brand, warranty_until. reminders: title, due_date, status (pending/snoozed/completed/cancelled), priority (low/normal/high/urgent), recurring. memories: category, key, value, confidence, source. recipes: title, description, ingredients JSONB [{item,amount}], instructions TEXT, servings, prep_time, cook_time, category, language (de/en), source_url, tags TEXT[]. Search recipes: WHERE title ILIKE '%..%' OR ingredients::text ILIKE '%..%'.",
       parameters: { type: "object", properties: { sql: { type: "string", description: "SQL SELECT query" }, params: { type: "string", description: "Optional JSON array of query parameters ($1, $2, ...)" } }, required: ["sql"] },
     },
   },
@@ -24,7 +24,7 @@ export const toolDefinitions: ToolDef[] = [
     type: "function",
     function: {
       name: "db_insert",
-      description: "Insert a row into a database table. Returns the inserted row. Sets created_by to ai automatically. Allowed tables: contacts, household_items, maintenance_logs, reminders, memories, contact_relations, interactions.",
+      description: "Insert a row into a database table. Returns the inserted row. Sets created_by to ai automatically. Allowed tables: contacts, household_items, maintenance_logs, reminders, memories, contact_relations, interactions, recipes.",
       parameters: { type: "object", properties: { table: { type: "string", description: "Table name (contacts, household_items, maintenance_logs, reminders, memories, contact_relations, interactions)" }, data: { type: "string", description: "JSON object of column-value pairs. For contacts use: email_private/email_business (NOT email), phone_private/phone_business (NOT phone), address (NOT city/country)" } }, required: ["table", "data"] },
     },
   },
@@ -110,7 +110,7 @@ export const toolDefinitions: ToolDef[] = [
   },
 ];
 
-const ALLOWED_TABLES = ["contacts", "household_items", "maintenance_logs", "reminders", "memories", "contact_relations", "interactions"];
+const ALLOWED_TABLES = ["contacts", "household_items", "maintenance_logs", "reminders", "memories", "contact_relations", "interactions", "recipes"];
 
 export async function executeTool(name: string, args: Record<string, string>): Promise<string> {
   try {

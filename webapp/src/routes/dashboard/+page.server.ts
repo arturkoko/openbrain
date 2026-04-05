@@ -1,11 +1,12 @@
 import { query } from '$lib/server/db.js';
 
 export async function load() {
-	const [contacts, reminders, household, memories] = await Promise.all([
+	const [contacts, reminders, household, memories, recipes] = await Promise.all([
 		query('SELECT COUNT(*) as count FROM contacts'),
 		query("SELECT COUNT(*) as count FROM reminders WHERE status = 'pending'"),
 		query('SELECT COUNT(*) as count FROM household_items'),
-		query('SELECT COUNT(*) as count FROM memories')
+		query('SELECT COUNT(*) as count FROM memories'),
+		query('SELECT COUNT(*) as count FROM recipes')
 	]);
 
 	const [hitThemUp, coldContacts, upcomingBirthdays, recentReminders, recentContacts] = await Promise.all([
@@ -48,7 +49,8 @@ export async function load() {
 			contacts: parseInt(contacts.rows[0].count),
 			reminders: parseInt(reminders.rows[0].count),
 			household: parseInt(household.rows[0].count),
-			memories: parseInt(memories.rows[0].count)
+			memories: parseInt(memories.rows[0].count),
+			recipes: parseInt(recipes.rows[0].count)
 		},
 		hitThemUp: hitThemUp.rows,
 		coldContacts: coldContacts.rows,
