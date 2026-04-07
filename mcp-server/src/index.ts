@@ -40,7 +40,9 @@ server.tool(
     const allowed = ['contacts', 'household_items', 'maintenance_logs', 'reminders', 'memories', 'contact_relations', 'interactions'];
     if (!allowed.includes(table)) return { content: [{ type: 'text', text: `Error: Table must be one of: ${allowed.join(', ')}` }] };
     const data = JSON.parse(dataStr) as Record<string, unknown>;
-    data.created_by = 'ai';
+    if (table !== 'interactions' && table !== 'recipes') {
+      data.created_by = 'ai';
+    }
     const keys = Object.keys(data);
     const vals = Object.values(data);
     const placeholders = keys.map((_, i) => `$${i + 1}`);

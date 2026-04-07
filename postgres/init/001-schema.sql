@@ -55,18 +55,39 @@ CREATE TABLE contacts (
     last_name VARCHAR(100),
     company VARCHAR(255),
     role VARCHAR(255),
-    email VARCHAR(255),
-    phone VARCHAR(50),
+    email_private VARCHAR(255),
+    email_business VARCHAR(255),
+    phone_private VARCHAR(50),
+    phone_business VARCHAR(50),
     linkedin VARCHAR(255),
-    city VARCHAR(100),
-    country VARCHAR(100),
+    address TEXT,
     warmth INTEGER DEFAULT 50 CHECK (warmth BETWEEN 0 AND 100),
     last_contact DATE,
+    birthday DATE,
+    industry VARCHAR(255),
+    is_vip BOOLEAN DEFAULT false,
+    preferred_platform VARCHAR(50),
+    relationship_type VARCHAR(50),
     how_met TEXT,
+    projects TEXT[] DEFAULT '{}',
     vault_link TEXT,
     tags TEXT[] DEFAULT '{}',
     notes TEXT,
     created_by VARCHAR(10) DEFAULT 'human' CHECK (created_by IN ('human', 'ai')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================
+-- Interactions (CRM Activity Log)
+-- ============================================
+CREATE TABLE interactions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    contact_id UUID NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+    date DATE NOT NULL DEFAULT CURRENT_DATE,
+    summary TEXT NOT NULL,
+    notes TEXT,
+    tags TEXT[] DEFAULT '{}',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -141,6 +162,8 @@ CREATE INDEX idx_household_tags ON household_items USING GIN(tags);
 CREATE INDEX idx_contacts_warmth ON contacts(warmth);
 CREATE INDEX idx_contacts_last_contact ON contacts(last_contact);
 CREATE INDEX idx_contacts_tags ON contacts USING GIN(tags);
+CREATE INDEX idx_interactions_contact ON interactions(contact_id);
+CREATE INDEX idx_interactions_date ON interactions(date DESC);
 CREATE INDEX idx_reminders_due ON reminders(due_date) WHERE status = 'pending';
 CREATE INDEX idx_reminders_status ON reminders(status);
 CREATE INDEX idx_memories_category ON memories(category);
@@ -167,5 +190,6 @@ CREATE TRIGGER trg_household_items_updated BEFORE UPDATE ON household_items FOR 
 CREATE TRIGGER trg_maintenance_logs_updated BEFORE UPDATE ON maintenance_logs FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER trg_contacts_updated BEFORE UPDATE ON contacts FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER trg_reminders_updated BEFORE UPDATE ON reminders FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER trg_interactions_updated BEFORE UPDATE ON interactions FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER trg_memories_updated BEFORE UPDATE ON memories FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
